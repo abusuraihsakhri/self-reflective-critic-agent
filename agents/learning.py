@@ -1,5 +1,5 @@
 """
-Autonomous Bayesian Calibration & Active Learning Feedback Engine for self-reflective-critic-agent.
+Empirical worker feedback and weighting engine for self-reflective-critic-agent.
 """
 import math
 from typing import Dict, Any, List, Optional
@@ -13,7 +13,7 @@ class WorkerPerformanceMetric(BaseModel):
     dynamic_weight: float = 1.0
 
 class ActiveLearningEngine:
-    """Continuously refines sub-agent voting weights based on consensus feedback."""
+    """Records empirical concordance and derives simple weighting factors."""
 
     def __init__(self, system_name: str = "Self Reflective Critic Agent"):
         self.system_name = system_name
@@ -32,7 +32,7 @@ class ActiveLearningEngine:
         if was_concordant:
             m.concordant_decisions += 1
         
-        # Update dynamic Bayesian reliability weight
+        # Update empirical reliability weight; this is not Bayesian calibration
         acc = m.concordant_decisions / max(1, m.total_evaluations)
         m.dynamic_weight = round(max(0.2, min(2.0, acc * 1.5)), 3)
 
