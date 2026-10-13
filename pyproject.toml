@@ -29,3 +29,9 @@ self-reflective-critic-agent = "cli:main"
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/self-reflective-critic-agent"
 Repository = "https://github.com/abusuraihsakhri/self-reflective-critic-agent.git"
+
+[tool.setuptools]
+py-modules = ["cli", "enrichment", "simulator", "reflect_critic_app"]
+
+[tool.setuptools.packages.find]
+include = ["agents", "agents.*", "reflect_critic", "reflect_critic.*"]
