@@ -107,4 +107,4 @@ class ReflectCriticCoordinator:
         elif "standard" in q or "spec" in q:
             return "Active runtime operating strictly according to Autonomous Self-Reflective Agent Architecture specifications."
         else:
-            return f"ReflectCritic: Long-Horizon Execution Quality & Error Recovery Arbiter executive coordinator online. Zero-telemetry on-premises surveillance active."
+            return f"ReflectCritic coordinator active with in-memory task records. No external model is connected."
