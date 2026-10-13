@@ -1,6 +1,6 @@
 """
 Supervisor Orchestrator & Operations Intelligence for Self Reflective Critic Agent.
-Domain: Clinical & Biomedical AI
+Domain: Illustrative task metric review
 """
 import uuid
 import json
@@ -82,5 +82,5 @@ class SystemSupervisor:
 
     def query_supervisory_chat(self, query: str) -> str:
         PHIGuard.assert_no_phi(query)
-        prompt = f"Supervisor inquiry for Self Reflective Critic Agent under CAP / CLSI / ISO Standards: {query}"
+        prompt = f"Supervisor inquiry for Self Reflective Critic Agent: {query}"
         return self.llm.invoke(prompt)
