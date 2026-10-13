@@ -51,6 +51,7 @@ def metrics():
 
 @app.get("/metrics/prometheus", response_class=PlainTextResponse)
 def prometheus_metrics():
+    GLOBAL_METRICS.audit_blocks_total = len(AuditLogger.get_trail())
     return GLOBAL_METRICS.export_prometheus_text()
 
 
