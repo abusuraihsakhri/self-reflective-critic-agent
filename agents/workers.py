@@ -1,7 +1,6 @@
 """
 Specialized Domain Worker Agents for Self Reflective Critic Agent.
-Domain: Clinical & Biomedical AI
-Standard: CAP / CLSI / ISO Standards
+Domain: Illustrative deterministic task metric review
 """
 import uuid
 from typing import Dict, Any, List, Optional
