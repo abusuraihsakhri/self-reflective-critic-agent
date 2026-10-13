@@ -9,6 +9,8 @@ import json
 import os
 import re
 import secrets
+import threading
+from functools import wraps
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -52,6 +54,14 @@ class PHIGuard:
         return result
 
 
+def synchronized(method):
+    @wraps(method)
+    def locked(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return locked
+
+
 class AuditTrail:
     """Per-process, tamper-evident chain; not durable storage."""
 
@@ -70,11 +80,13 @@ class AuditTrail:
         self.logs: List[Dict[str, str]] = []
         self._entry_count = 0
         self._head_hash = self.GENESIS
+        self._lock = threading.RLock()
 
     def _signature(self, entry: Dict[str, str]) -> str:
         message = "|".join(entry[field] for field in self.SIGNED_FIELDS)
         return hmac.new(self.secret_key, message.encode("utf-8"), hashlib.sha256).hexdigest()
 
+    @synchronized
     def log(self, actor: str, actor_tier: str, event_type: str,
             details: Dict[str, Any]) -> Dict[str, str]:
         payload = json.dumps(details, sort_keys=True, allow_nan=False, default=str)
@@ -95,6 +107,7 @@ class AuditTrail:
         self._head_hash = entry["current_hash"]
         return entry.copy()
 
+    @synchronized
     def verify_integrity(self) -> bool:
         if len(self.logs) != self._entry_count:
             return False
@@ -111,6 +124,7 @@ class AuditTrail:
                 return False
         return hmac.compare_digest(previous, self._head_hash)
 
+    @synchronized
     def get_trail(self) -> List[Dict[str, str]]:
         return [entry.copy() for entry in self.logs]
 
