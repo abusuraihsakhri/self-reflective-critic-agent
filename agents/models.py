@@ -1,7 +1,6 @@
 """
 Pydantic v2 schemas and data definitions for Self Reflective Critic Agent.
-Domain: Clinical & Biomedical AI
-Standard: CAP / CLSI / ISO Standards
+Domain: Illustrative deterministic task metric review
 """
 import datetime
 from enum import Enum
