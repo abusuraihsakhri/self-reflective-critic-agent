@@ -11,6 +11,16 @@ from .agents import ReflectCriticCoordinator
 coordinator = ReflectCriticCoordinator()
 
 
+def parse_csv_bool(value: str) -> bool:
+    normalized = str(value).strip().lower()
+    if normalized in {"true", "1", "yes", "y"}:
+        return True
+    if normalized in {"false", "0", "no", "n", ""}:
+        return False
+    raise ValueError(f"Invalid is_critical_flag value: {value!r}")
+
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="self-reflective-critic-agent", description="ReflectCritic: Long-Horizon Execution Quality & Error Recovery Arbiter")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -83,7 +93,7 @@ def main(argv=None):
                 primary_metric=float(r.get("primary_metric", 15.0)),
                 secondary_metric=float(r.get("secondary_metric", 5.0)),
                 status_descriptor=r.get("status_descriptor", "NOMINAL"),
-                is_critical_flag=bool(r.get("is_critical_flag", False)),
+                is_critical_flag=parse_csv_bool(r.get("is_critical_flag", "")),
             )
             dossier = coordinator.process(payload)
             row_dict = dict(r)

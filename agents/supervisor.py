@@ -1,13 +1,16 @@
 """
 Supervisor Orchestrator & Operations Intelligence for Self Reflective Critic Agent.
-Domain: Clinical & Biomedical AI
+Domain: Illustrative task metric review
 """
 import uuid
+import json
+import time
 from typing import Dict, Any, List, Optional
-from .base import AuditLogger, ActionExecutor, PHIGuard
+from .base import AuditLogger, PHIGuard, SecurityException
 from .models import SystemTaskPayload, AgentAlert, ConsensusDossier, UrgencyLevel, SystemIntegrityStatus
 from .workers import InvariantQCWorker, SafetyEscalationWorker, ProtocolConformanceWorker
 from .llm_factory import LLMFactory
+from .metrics import GLOBAL_METRICS
 
 
 class SystemSupervisor:
@@ -21,10 +24,13 @@ class SystemSupervisor:
         self.dossier_registry: Dict[str, ConsensusDossier] = {}
 
     def process_task(self, payload: SystemTaskPayload, actor: str = "SystemSupervisor") -> ConsensusDossier:
-        # Zero-PHI outbound validation
-        PHIGuard.assert_no_phi(payload.task_id)
-        PHIGuard.assert_no_phi(payload.target_identifier)
-        PHIGuard.assert_no_phi(payload.status_descriptor)
+        started = time.perf_counter()
+        # Inspect the whole payload, including nested attributes, before processing or logging.
+        try:
+            PHIGuard.assert_no_phi(json.dumps(payload.model_dump(), ensure_ascii=False, default=str))
+        except SecurityException:
+            GLOBAL_METRICS.record_phi_block()
+            raise
 
         # Multi-worker evaluations
         all_alerts: List[AgentAlert] = []
@@ -71,9 +77,10 @@ class SystemSupervisor:
         )
 
         self.dossier_registry[dossier.dossier_id] = dossier
+        GLOBAL_METRICS.record_task(overall_urgency.value, time.perf_counter() - started)
         return dossier
 
     def query_supervisory_chat(self, query: str) -> str:
         PHIGuard.assert_no_phi(query)
-        prompt = f"Supervisor inquiry for Self Reflective Critic Agent under CAP / CLSI / ISO Standards: {query}"
+        prompt = f"Supervisor inquiry for Self Reflective Critic Agent: {query}"
         return self.llm.invoke(prompt)

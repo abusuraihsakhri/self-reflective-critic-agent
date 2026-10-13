@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "self-reflective-critic-engine"
-version = "2.0.0"
+version = "3.0.0"
 description = "ReflectCritic: Long-Horizon Execution Quality & Error Recovery Arbiter"
 readme = "README.md"
-authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
+authors = [{ name = "Dr. Abu Suraih Sakhri" }]
 license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -16,12 +16,22 @@ classifiers = [
     "Topic :: Security/Cryptography",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-requires-python = ">=3.9"
-dependencies = []
+requires-python = ">=3.10"
+dependencies = ["pydantic>=2,<3"]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110,<1", "uvicorn>=0.27,<1"]
 
 [project.scripts]
 self-reflective-critic-engine = "reflect_critic.cli:main"
+self-reflective-critic-agent = "cli:main"
 
 [project.urls]
-Homepage = "https://github.com/abusuraihsakhri/self-reflective-critic-engine"
-Repository = "https://github.com/abusuraihsakhri/self-reflective-critic-engine.git"
+Homepage = "https://github.com/abusuraihsakhri/self-reflective-critic-agent"
+Repository = "https://github.com/abusuraihsakhri/self-reflective-critic-agent.git"
+
+[tool.setuptools]
+py-modules = ["cli", "enrichment", "simulator", "reflect_critic_app"]
+
+[tool.setuptools.packages.find]
+include = ["agents", "agents.*", "reflect_critic", "reflect_critic.*"]
