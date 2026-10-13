@@ -68,6 +68,8 @@ class AuditTrail:
         # Random process-local key is safe for development, but cannot verify after restart.
         self.secret_key = supplied.encode("utf-8") if supplied else secrets.token_bytes(32)
         self.logs: List[Dict[str, str]] = []
+        self._entry_count = 0
+        self._head_hash = self.GENESIS
 
     def _signature(self, entry: Dict[str, str]) -> str:
         message = "|".join(entry[field] for field in self.SIGNED_FIELDS)
@@ -89,9 +91,13 @@ class AuditTrail:
         }
         entry["current_hash"] = self._signature(entry)
         self.logs.append(entry)
+        self._entry_count += 1
+        self._head_hash = entry["current_hash"]
         return entry.copy()
 
     def verify_integrity(self) -> bool:
+        if len(self.logs) != self._entry_count:
+            return False
         previous = self.GENESIS
         for entry in self.logs:
             try:
@@ -103,7 +109,7 @@ class AuditTrail:
                 previous = entry["current_hash"]
             except (KeyError, TypeError, AttributeError):
                 return False
-        return True
+        return hmac.compare_digest(previous, self._head_hash)
 
     def get_trail(self) -> List[Dict[str, str]]:
         return [entry.copy() for entry in self.logs]
