@@ -74,10 +74,20 @@ if (typeof document !== "undefined") {
   const output = document.getElementById("output");
   const download = document.getElementById("download");
   const submit = document.getElementById("submit");
-  const isPages = location.hostname.endsWith(".github.io") || location.protocol === "file:";
-  let backend = !isPages;
+  let backend = false;
   let latest = null;
-  mode.textContent = backend ? "Server API (with local fallback)" : "Browser-only evaluation — no upload";
+  mode.textContent = "Browser-only evaluation — no upload";
+  // Probe the server identity before transmitting any task data.
+  if (location.protocol !== "file:" && !location.hostname.endsWith(".github.io")) {
+    fetch("./health", {cache: "no-store"})
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        if (data && data.service === "self-reflective-critic-agent") {
+          backend = true;
+          mode.textContent = "Server API (with local fallback)";
+        }
+      }).catch(() => {});
+  }
   form.addEventListener("submit", async event => {
     event.preventDefault();
     submit.disabled = true;
