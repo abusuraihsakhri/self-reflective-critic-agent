@@ -1,114 +1,81 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Self Reflective Critic Engine API",
-    "description": "Enterprise Distributed Component Platform (Clinical & Cryptographic AI) adhering to CAP / CLSI / NIST Standards.",
-    "version": "3.0.0-ENTERPRISE",
-    "contact": {
-      "name": "Dr. Abu Suraih Sakhri",
-      "url": "https://github.com/abusuraihsakhri"
-    }
+    "title": "Self Reflective Critic Agent API",
+    "version": "3.0.0",
+    "description": "Deterministic task-metric checks with an in-memory signed audit trail. For non-sensitive test data; not clinical validation."
   },
   "paths": {
     "/health": {
       "get": {
-        "summary": "Health and metadata check",
-        "responses": {
-          "200": {
-            "description": "System optimal"
-          }
-        }
+        "summary": "Service health",
+        "responses": {"200": {"description": "Service metadata"}}
       }
     },
     "/metrics": {
       "get": {
-        "summary": "Prometheus operational metrics",
-        "responses": {
-          "200": {
-            "description": "Prometheus text metrics"
-          }
-        }
+        "summary": "JSON operational counters",
+        "responses": {"200": {"description": "JSON counts and status"}}
+      }
+    },
+    "/metrics/prometheus": {
+      "get": {
+        "summary": "Prometheus text metrics",
+        "responses": {"200": {"description": "Prometheus text output"}}
       }
     },
     "/api/audit": {
       "post": {
-        "summary": "Dispatch task payload across specialized workers",
+        "summary": "Evaluate an illustrative metric payload",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": ["task_id", "target_identifier", "primary_metric"],
                 "properties": {
-                  "task_id": {
-                    "type": "string"
-                  },
-                  "target_identifier": {
-                    "type": "string"
-                  },
-                  "primary_metric": {
-                    "type": "number"
-                  },
-                  "secondary_metric": {
-                    "type": "number"
-                  },
-                  "status_descriptor": {
-                    "type": "string"
-                  },
-                  "is_critical_flag": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "task_id",
-                  "target_identifier",
-                  "primary_metric"
-                ]
+                  "task_id": {"type": "string"},
+                  "target_identifier": {"type": "string"},
+                  "primary_metric": {"type": "number"},
+                  "secondary_metric": {"type": "number", "default": 0},
+                  "status_descriptor": {"type": "string", "default": "NOMINAL"},
+                  "is_critical_flag": {"type": "boolean", "default": false},
+                  "attributes": {"type": "object"}
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Consensus dossier with HMAC signature"
-          }
+          "200": {"description": "Evaluation dossier"},
+          "400": {"description": "Potential sensitive identifier rejected"},
+          "422": {"description": "Payload validation error"}
         }
       }
     },
     "/api/chat": {
       "post": {
-        "summary": "Air-gapped supervisory conversational assistant",
+        "summary": "Deterministic mock supervisory response",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "query"
-                ]
+                "required": ["query"],
+                "properties": {"query": {"type": "string"}}
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Supervisory response"
-          }
-        }
+        "responses": {"200": {"description": "Mock response"}, "400": {"description": "Identifier rejected"}}
       }
     },
     "/api/audit/logs": {
       "get": {
-        "summary": "Retrieve and cryptographically verify HMAC audit trail",
-        "responses": {
-          "200": {
-            "description": "Cryptographic audit trail"
-          }
-        }
+        "summary": "Inspect in-memory audit hashes and signature verification",
+        "responses": {"200": {"description": "Trail and integrity flag"}}
       }
     }
   }
