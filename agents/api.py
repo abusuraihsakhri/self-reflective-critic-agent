@@ -28,6 +28,11 @@ def index():
     return FileResponse(Path(__file__).resolve().parent.parent / "web" / "index.html")
 
 
+@app.get("/app.js", include_in_schema=False)
+def browser_script():
+    return FileResponse(Path(__file__).resolve().parent.parent / "web" / "app.js", media_type="text/javascript")
+
+
 @app.get("/health")
 def health():
     return {"status": "HEALTHY", "service": "self-reflective-critic-agent", "version": "3.0.0"}
