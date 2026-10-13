@@ -1,6 +1,5 @@
 """Regressions for audit signatures, privacy checks, CSV parsing and API."""
 import csv
-from copy import deepcopy
 
 import pytest
 from fastapi.testclient import TestClient
@@ -31,6 +30,14 @@ def test_hmac_detects_truncated_or_modified_link():
     trail.log("actor", "tier", "EVENT", {"status": "one"})
     trail.log("actor", "tier", "EVENT", {"status": "two"})
     trail.logs[1]["prev_hash"] = "forged"
+    assert not trail.verify_integrity()
+
+
+def test_audit_trailing_entry_deletion_is_detected():
+    trail = AuditTrail(secret_key="test-key")
+    trail.log("actor", "tier", "EVENT", {"status": "one"})
+    trail.log("actor", "tier", "EVENT", {"status": "two"})
+    trail.logs.pop()
     assert not trail.verify_integrity()
 
 
